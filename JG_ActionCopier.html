@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Joystick Gremlin Profile Paster v1.08</title>
+    <title>Joystick Gremlin Profile Paster v1.082</title>
     <style>
     /* Spartan, functional styling as requested. */
     body { font-family: "Segoe UI", sans-serif; margin: 2em; background-color: #f0f0f0; }
@@ -155,7 +155,7 @@
     <h3><span class="emoji-icon">✅</span> Step 3: Confirm & Save</h3>
     <p><strong>Selected Source:</strong> <span id="selectedSourceInfo">None</span></p>
     <p><strong>Selected Target:</strong> <span id="selectedTargetInfo">None</span></p>
-    <button id="confirmCopyBtn" disabled><span class="emoji-icon">➡️</span> Confirm Copy</button>
+    <button id="confirmCopyBtn" disabled><span class="emoji-icon">➡️</span> Preview Copy</button>
     <hr>
     <label for="outputFileName"><strong>Output Filename:</strong></label>
     <input type="text" id="outputFileName" disabled>
@@ -334,16 +334,23 @@ function buildSourceTreeView() {
     const deviceNode = document.createElement('li');
     deviceNode.innerHTML = `<span class="emoji-icon">🎮</span>${deviceName}`;
     const itemList = document.createElement('ul');
-    device.querySelectorAll('mode > axis, mode > button').forEach(element => {
+device.querySelectorAll('mode > axis, mode > button').forEach(element => {
     if (element.firstElementChild) {
-    const type = element.tagName;
-    const id = element.getAttribute('id');
-    const description = generateItemDescription(element, true);
-    const text = `${type.charAt(0).toUpperCase() + type.slice(1)} ${id}: ${description}`;
-    const data = { type, filename, deviceName, deviceGuid, id, elementType: element.firstElementChild.tagName };
-    itemList.appendChild(createSelectableListItem(text, data, 'source'));
+        const firstChild = element.firstElementChild;
+        // Skip truly empty containers (no action-set or empty action-set)
+        if (firstChild.tagName === 'container') {
+            const actionSet = firstChild.querySelector('action-set');
+            if (!actionSet || !actionSet.children.length === 0) return;
+        }
+        
+        const type = element.tagName;
+        const id = element.getAttribute('id');
+        const description = generateItemDescription(element, true);
+        const text = `${type.charAt(0).toUpperCase() + type.slice(1)} ${id}: ${description}`;
+        const data = { type, filename, deviceName, deviceGuid, id, elementType: element.firstElementChild.tagName };
+        itemList.appendChild(createSelectableListItem(text, data, 'source'));
     }
-    });
+});
     if (itemList.hasChildNodes()) {
     deviceNode.appendChild(itemList);
     deviceList.appendChild(deviceNode);
@@ -588,6 +595,25 @@ function downloadFile(filename, content, mimeType) {
     document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
 }
+
+// Add event listener for ESC key to dismiss preview modal
+document.addEventListener('keydown', function(event) {
+    // Check if ESC key was pressed
+    if (event.key === "Escape" || event.keyCode === 27) {
+        // Get the preview modal element
+        const previewModal = document.getElementById('previewModal');
+        
+        // If the preview modal exists and is visible, hide it
+        if (previewModal && previewModal.style.display === 'block') {
+            previewModal.style.display = 'none';
+            
+            // Re-enable other UI elements that might have been disabled
+            document.querySelectorAll('button:not(#previewConfirmBtn):not(#previewCancelBtn)').forEach(btn => {
+                btn.disabled = false;
+            });
+        }
+    }
+});
 </script>
 
 </body>
