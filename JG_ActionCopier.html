@@ -2,96 +2,206 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Joystick Gremlin Profile Paster v1.07</title>
+    <title>Joystick Gremlin Profile Paster v1.08</title>
     <style>
-        /* Spartan, functional styling as requested. */
-        body { font-family: "Segoe UI", sans-serif; margin: 2em; background-color: #f0f0f0; }
-        h1, h2, h3 { font-family: "Segoe UI Light", sans-serif; }
-        .wizard-step { display: none; border: 1px solid #ccc; padding: 1.5em; background-color: #fff; margin-top: 1em; }
-        #step1 { display: block; }
-        .container { display: flex; gap: 2em; }
-        .panel { flex: 1; border: 1px solid #ddd; padding: 1em; height: 60vh; overflow-y: auto; }
-        #sourceTree, #targetTree { list-style-type: none; padding-left: 0; }
-        #sourceTree ul, #targetTree ul { list-style-type: none; padding-left: 20px; }
-        #sourceTree li, #targetTree li { padding: 4px; }
-        .selectable { cursor: pointer; }
-        .selectable:hover { background-color: #e0e0e0; }
-        .selected { background-color: #0078d4; color: white; }
-        .file-input-label { display: block; margin-bottom: 1em; }
-        input[type="text"], input[type="file"] { width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 1em; }
-        button { font-size: 1em; padding: 10px 15px; cursor: pointer; margin-right: 10px; background-color: #ddd; border: 1px solid #bbb; }
-        button:hover { background-color: #ccc; }
-        button:disabled { cursor: not-allowed; background-color: #eee; color: #aaa; }
-        #actionsPanel, #logPanel { margin-top: 1em; padding: 1em; border: 1px solid #ccc; background-color: #f9f9f9; }
-        .emoji-icon { font-family: "Segoe UI Emoji"; display: inline-block; width: 28px; text-align: center; }
-        .description { color: #555; font-style: italic; }
-        .selected .description { color: #eee; }
-        #operationsLog { list-style-type: none; padding-left: 0; max-height: 150px; overflow-y: auto; background-color: #fff; border: 1px solid #ddd; padding: 10px; }
-        #operationsLog li { padding: 5px; border-bottom: 1px solid #eee; font-size: 0.9em; }
-        #operationsLog li:last-child { border-bottom: none; }
-        .log-time { font-weight: bold; color: #005a9e; }
+    /* Spartan, functional styling as requested. */
+    body { font-family: "Segoe UI", sans-serif; margin: 2em; background-color: #f0f0f0; }
+    h1, h2, h3 { font-family: "Segoe UI Light", sans-serif; }
+    .wizard-step { display: none; border: 1px solid #ccc; padding: 1.5em; background-color: #fff; margin-top: 1em; }
+    #step1 { display: block; }
+    .container { display: flex; gap: 2em; }
+    .panel { flex: 1; border: 1px solid #ddd; padding: 1em; height: 60vh; overflow-y: auto; }
+    #sourceTree, #targetTree { list-style-type: none; padding-left: 0; }
+    #sourceTree ul, #targetTree ul { list-style-type: none; padding-left: 20px; }
+    #sourceTree li, #targetTree li { padding: 4px; }
+    .selectable { cursor: pointer; }
+    .selectable:hover { background-color: #e0e0e0; }
+    .selected { background-color: #0078d4; color: white; }
+    .file-input-label { display: block; margin-bottom: 1em; }
+    input[type="text"], input[type="file"] { width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 1em; }
+    button { font-size: 1em; padding: 10px 15px; cursor: pointer; margin-right: 10px; background-color: #ddd; border: 1px solid #bbb; }
+    button:hover { background-color: #ccc; }
+    button:disabled { cursor: not-allowed; background-color: #eee; color: #aaa; }
+    #actionsPanel, #logPanel { margin-top: 1em; padding: 1em; border: 1px solid #ccc; background-color: #f9f9f9; }
+    .emoji-icon { font-family: "Segoe UI Emoji"; display: inline-block; width: 28px; text-align: center; }
+    .description { color: #555; font-style: italic; }
+    .selected .description { color: #eee; }
+    #operationsLog { list-style-type: none; padding-left: 0; max-height: 150px; overflow-y: auto; background-color: #fff; border: 1px solid #ddd; padding: 10px; }
+    #operationsLog li { padding: 5px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+    #operationsLog li:last-child { border-bottom: none; }
+    .log-time { font-weight: bold; color: #005a9e; }
+    
+    /* Preview Modal Styles */
+    #previewModal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+    .modal-content {
+        position: relative;
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 20px;
+        width: 90%;
+        max-width: 1800px;
+        max-height: 80vh;
+        overflow-y: auto;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .preview-container {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .preview-panel {
+        flex: 1;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+    }
+    .preview-panel h4 {
+        margin-top: 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+    .preview-xml {
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+    }
+    .preview-buttons {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .preview-buttons button {
+        margin: 0 10px;
+        padding: 10px 20px;
+    }
+    #previewConfirmBtn {
+        background-color: #0078d4;
+        color: white;
+        border: 1px solid #0067b8;
+    }
+    #previewConfirmBtn:hover {
+        background-color: #0067b8;
+    }
+    #previewCancelBtn {
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+    }
+    #previewCancelBtn:hover {
+        background-color: #e0e0e0;
+    }
     </style>
 </head>
 <body>
 
-    <h1><span class="emoji-icon">🛠️</span> Joystick Gremlin Profile Paster v1.07</h1>
+    <h1><span class="emoji-icon">🛠️</span> Joystick Gremlin Profile Paster v1.08</h1>
     <p>A self-contained tool to copy actions, curves, and macros between profiles.</p>
 
     <!-- STEP 1: FILE UPLOAD -->
     <div id="step1" class="wizard-step">
-        <h2><span class="emoji-icon">📂</span> Step 1: Load Your Profiles</h2>
-        <p>Load one or more 'source' profiles to build the database of copyable items. Then, load the single 'target' profile you wish to modify.</p>
-        
-        <label for="sourceFiles" class="file-input-label"><strong>1. Select Source Profile(s) (.xml):</strong></label>
-        <input type="file" id="sourceFiles" multiple accept=".xml">
+    <h2><span class="emoji-icon">📂</span> Step 1: Load Your Profiles</h2>
+    <p>Load one or more 'source' profiles to build the database of copyable items. Then, load the single 'target' profile you wish to modify.</p>
+    
+    <label for="sourceFiles" class="file-input-label"><strong>1. Select Source Profile(s) (.xml):</strong></label>
+    <input type="file" id="sourceFiles" multiple accept=".xml">
 
-        <label for="targetFile" class="file-input-label"><strong>2. Select Target Profile (.xml):</strong></label>
-        <input type="file" id="targetFile" accept=".xml">
+    <label for="targetFile" class="file-input-label"><strong>2. Select Target Profile (.xml):</strong></label>
+    <input type="file" id="targetFile" accept=".xml">
 
-        <button id="loadFilesBtn"><span class="emoji-icon">⚡</span> Process Files</button>
-        <p id="loadingStatus"></p>
+    <button id="loadFilesBtn"><span class="emoji-icon">⚡</span> Process Files</button>
+    <p id="loadingStatus"></p>
     </div>
 
     <!-- STEP 2: MAIN APPLICATION INTERFACE -->
     <div id="step2" class="wizard-step">
-        <h2><span class="emoji-icon">🌳</span> Step 2: Copy & Paste Actions</h2>
-        <div class="container">
-            <div class="panel">
-                <h3><span class="emoji-icon">🔍</span> Source Library</h3>
-                <input type="text" id="searchSource" placeholder="Search profiles, devices, or descriptions...">
-                <ul id="sourceTree"></ul>
-            </div>
-            <div class="panel">
-                <h3><span class="emoji-icon">🎯</span> Target Destinations</h3>
-                <p id="targetInstruction">Select an item from the source library to see available destinations.</p>
-                <ul id="targetTree"></ul>
-            </div>
-        </div>
+    <h2><span class="emoji-icon">🌳</span> Step 2: Copy & Paste Actions</h2>
+    <div class="container">
+    <div class="panel">
+    <h3><span class="emoji-icon">🔍</span> Source Library</h3>
+    <input type="text" id="searchSource" placeholder="Search profiles, devices, or descriptions...">
+    <ul id="sourceTree"></ul>
+    </div>
+    <div class="panel">
+    <h3><span class="emoji-icon">🎯</span> Target Destinations</h3>
+    <p id="targetInstruction">Select an item from the source library to see available destinations.</p>
+    <ul id="targetTree"></ul>
+    </div>
+    </div>
 
-        <div id="actionsPanel">
-            <h3><span class="emoji-icon">✅</span> Step 3: Confirm & Save</h3>
-            <p><strong>Selected Source:</strong> <span id="selectedSourceInfo">None</span></p>
-            <p><strong>Selected Target:</strong> <span id="selectedTargetInfo">None</span></p>
-            <button id="confirmCopyBtn" disabled><span class="emoji-icon">➡️</span> Confirm Copy</button>
-            <hr>
-            <label for="outputFileName"><strong>Output Filename:</strong></label>
-            <input type="text" id="outputFileName" disabled>
-            <br><br>
-            <button id="saveBtn" disabled><span class="emoji-icon">💾</span> Save Modified Profile</button>
-            <button id="startOverBtn"><span class="emoji-icon">🔄</span> Start Over</button>
-            <p id="saveStatus"></p>
-        </div>
+    <div id="actionsPanel">
+    <h3><span class="emoji-icon">✅</span> Step 3: Confirm & Save</h3>
+    <p><strong>Selected Source:</strong> <span id="selectedSourceInfo">None</span></p>
+    <p><strong>Selected Target:</strong> <span id="selectedTargetInfo">None</span></p>
+    <button id="confirmCopyBtn" disabled><span class="emoji-icon">➡️</span> Confirm Copy</button>
+    <hr>
+    <label for="outputFileName"><strong>Output Filename:</strong></label>
+    <input type="text" id="outputFileName" disabled>
+    <br><br>
+    <button id="saveBtn" disabled><span class="emoji-icon">💾</span> Save Modified Profile</button>
+    <button id="startOverBtn"><span class="emoji-icon">🔄</span> Start Over</button>
+    <p id="saveStatus"></p>
+    </div>
 
-        <div id="logPanel">
-            <h3><span class="emoji-icon">📋</span> Record of Performed Operations</h3>
-            <ul id="operationsLog">
-                <li>No operations performed yet.</li>
-            </ul>
+    <div id="logPanel">
+    <h3><span class="emoji-icon">📋</span> Record of Performed Operations</h3>
+    <ul id="operationsLog">
+    <li>No operations performed yet.</li>
+    </ul>
+    </div>
+    </div>
+    
+    <!-- Preview Modal -->
+    <div id="previewModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3><span class="emoji-icon">👁️</span> Preview Copy Operation</h3>
+            <p>Review the content that will be copied from source to target:</p>
+            
+            <div class="preview-container">
+                <div class="preview-panel">
+                    <h4><span class="emoji-icon">📤</span> Source Content</h4>
+                    <p id="previewSourcePath"></p>
+                    <div class="preview-xml" id="previewSourceXml"></div>
+                </div>
+                <div class="preview-panel">
+                    <h4><span class="emoji-icon">📥</span> Target Destination</h4>
+                    <p id="previewTargetPath"></p>
+                    <div class="preview-xml" id="previewTargetXml"></div>
+                </div>
+            </div>
+            
+            <div class="preview-buttons">
+                <button id="previewConfirmBtn"><span class="emoji-icon">✅</span> Confirm Copy</button>
+                <button id="previewCancelBtn"><span class="emoji-icon">❌</span> Cancel</button>
+            </div>
         </div>
     </div>
 
 <script>
-// --- JAVASCRIPT APPLICATION LOGIC (v1.07) ---
+// --- JAVASCRIPT APPLICATION LOGIC (v1.08) ---
 
 // DOM Element References
 const step1 = document.getElementById('step1'), step2 = document.getElementById('step2');
@@ -105,11 +215,22 @@ const outputFileName = document.getElementById('outputFileName');
 const saveStatus = document.getElementById('saveStatus');
 const operationsLog = document.getElementById('operationsLog');
 
+// Preview Modal Elements
+const previewModal = document.getElementById('previewModal');
+const closeModal = document.querySelector('.close-modal');
+const previewSourcePath = document.getElementById('previewSourcePath');
+const previewTargetPath = document.getElementById('previewTargetPath');
+const previewSourceXml = document.getElementById('previewSourceXml');
+const previewTargetXml = document.getElementById('previewTargetXml');
+const previewConfirmBtn = document.getElementById('previewConfirmBtn');
+const previewCancelBtn = document.getElementById('previewCancelBtn');
+
 // Application State
 let sourceDOMs = {}, targetDOM = null, originalTargetContent = '', targetFileName = '';
 let selectedSourceData = null, selectedTargetData = null;
 let hasUnsavedChanges = false;
 let logIsEmpty = true;
+let pendingSourceElement = null, pendingTargetElement = null;
 
 // --- UTILITY FUNCTIONS ---
 function generateItemDescription(parentElement, isSource) {
@@ -124,16 +245,24 @@ function generateItemDescription(parentElement, isSource) {
     if (nameAttr && isSource) parts.push(`<span class="description">(Name: "${nameAttr}")</span>`);
     
     if (childElement.tagName === 'container') {
-        const actionSet = childElement.querySelector('action-set');
-        if (actionSet) {
-            const childActions = actionSet.querySelectorAll(':scope > *');
-            if (childActions.length > 0) {
-                const actionTypes = Array.from(childActions).map(n => n.tagName).slice(0, 3).join(', ');
-                parts.push(`<span class="description">(${actionTypes}${childActions.length > 3 ? '...' : ''})</span>`);
-            }
-        }
+    const actionSet = childElement.querySelector('action-set');
+    if (actionSet) {
+    const childActions = actionSet.querySelectorAll(':scope > *');
+    if (childActions.length > 0) {
+    const actionTypes = Array.from(childActions).map(n => n.tagName).slice(0, 3).join(', ');
+    parts.push(`<span class="description">(${actionTypes}${childActions.length > 3 ? '...' : ''})</span>`);
+    }
+    }
     }
     return parts.join(' ');
+}
+
+// Format XML for display
+function formatXml(xml) {
+    const serializer = new XMLSerializer();
+    return serializer.serializeToString(xml)
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 // --- FILE HANDLING AND PARSING ---
@@ -144,45 +273,45 @@ function handleFileLoad() {
     const sourceFiles = sourceFilesInput.files;
     const targetFile = targetFileInput.files[0];
     if (sourceFiles.length === 0 || !targetFile) {
-        loadingStatus.textContent = '⚠️ Please select both source file(s) and a target file.';
-        return;
+    loadingStatus.textContent = '⚠️ Please select both source file(s) and a target file.';
+    return;
     }
     loadingStatus.textContent = 'Processing...';
     sourceDOMs = {};
     let filesToProcess = sourceFiles.length + 1;
     const onFileProcessed = () => {
-        if (--filesToProcess === 0) {
-            buildSourceTreeView();
-            step1.style.display = 'none';
-            step2.style.display = 'block';
-            loadingStatus.textContent = '';
-        }
+    if (--filesToProcess === 0) {
+    buildSourceTreeView();
+    step1.style.display = 'none';
+    step2.style.display = 'block';
+    loadingStatus.textContent = '';
+    }
     };
     for (const file of sourceFiles) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(e.target.result, "application/xml");
-                if (xmlDoc.getElementsByTagName("parsererror").length > 0) throw new Error(`Parser error in ${file.name}`);
-                sourceDOMs[file.name] = xmlDoc;
-                onFileProcessed();
-            } catch (error) { loadingStatus.textContent = `Error parsing ${file.name}: ${error.message}`; }
-        };
-        reader.readAsText(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+    try {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(e.target.result, "application/xml");
+    if (xmlDoc.getElementsByTagName("parsererror").length > 0) throw new Error(`Parser error in ${file.name}`);
+    sourceDOMs[file.name] = xmlDoc;
+    onFileProcessed();
+    } catch (error) { loadingStatus.textContent = `Error parsing ${file.name}: ${error.message}`; }
+    };
+    reader.readAsText(file);
     }
     const targetReader = new FileReader();
     targetReader.onload = (e) => {
-        try {
-            originalTargetContent = e.target.result;
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(e.target.result, "application/xml");
-            if (xmlDoc.getElementsByTagName("parsererror").length > 0) throw new Error(`Parser error in ${targetFile.name}`);
-            targetDOM = xmlDoc;
-            targetFileName = targetFile.name;
-            outputFileName.value = targetFileName;
-            onFileProcessed();
-        } catch (error) { loadingStatus.textContent = `Error parsing ${targetFile.name}: ${error.message}`; }
+    try {
+    originalTargetContent = e.target.result;
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(e.target.result, "application/xml");
+    if (xmlDoc.getElementsByTagName("parsererror").length > 0) throw new Error(`Parser error in ${targetFile.name}`);
+    targetDOM = xmlDoc;
+    targetFileName = targetFile.name;
+    outputFileName.value = targetFileName;
+    onFileProcessed();
+    } catch (error) { loadingStatus.textContent = `Error parsing ${targetFile.name}: ${error.message}`; }
     };
     targetReader.readAsText(targetFile);
 }
@@ -192,38 +321,38 @@ function buildSourceTreeView() {
     sourceTree.innerHTML = '';
     const sortedFilenames = Object.keys(sourceDOMs).sort((a, b) => a.localeCompare(b));
     for (const filename of sortedFilenames) {
-        const doc = sourceDOMs[filename];
-        const profileNode = document.createElement('li');
-        profileNode.innerHTML = `<span class="emoji-icon">📄</span><strong>${filename}</strong>`;
-        const deviceList = document.createElement('ul');
-        const devices = Array.from(doc.querySelectorAll('device')).sort((a, b) => (a.getAttribute('name') || '').localeCompare(b.getAttribute('name') || ''));
-        devices.forEach(device => {
-            const deviceName = device.getAttribute('name');
-            const deviceGuid = device.getAttribute('device-guid');
-            if (!deviceGuid) return;
+    const doc = sourceDOMs[filename];
+    const profileNode = document.createElement('li');
+    profileNode.innerHTML = `<span class="emoji-icon">📄</span><strong>${filename}</strong>`;
+    const deviceList = document.createElement('ul');
+    const devices = Array.from(doc.querySelectorAll('device')).sort((a, b) => (a.getAttribute('name') || '').localeCompare(b.getAttribute('name') || ''));
+    devices.forEach(device => {
+    const deviceName = device.getAttribute('name');
+    const deviceGuid = device.getAttribute('device-guid');
+    if (!deviceGuid) return;
 
-            const deviceNode = document.createElement('li');
-            deviceNode.innerHTML = `<span class="emoji-icon">🎮</span>${deviceName}`;
-            const itemList = document.createElement('ul');
-            device.querySelectorAll('mode > axis, mode > button').forEach(element => {
-                if (element.firstElementChild) {
-                    const type = element.tagName;
-                    const id = element.getAttribute('id');
-                    const description = generateItemDescription(element, true);
-                    const text = `${type.charAt(0).toUpperCase() + type.slice(1)} ${id}: ${description}`;
-                    const data = { type, filename, deviceName, deviceGuid, id, elementType: element.firstElementChild.tagName };
-                    itemList.appendChild(createSelectableListItem(text, data, 'source'));
-                }
-            });
-            if (itemList.hasChildNodes()) {
-                deviceNode.appendChild(itemList);
-                deviceList.appendChild(deviceNode);
-            }
-        });
-        if (deviceList.hasChildNodes()) {
-            profileNode.appendChild(deviceList);
-            sourceTree.appendChild(profileNode);
-        }
+    const deviceNode = document.createElement('li');
+    deviceNode.innerHTML = `<span class="emoji-icon">🎮</span>${deviceName}`;
+    const itemList = document.createElement('ul');
+    device.querySelectorAll('mode > axis, mode > button').forEach(element => {
+    if (element.firstElementChild) {
+    const type = element.tagName;
+    const id = element.getAttribute('id');
+    const description = generateItemDescription(element, true);
+    const text = `${type.charAt(0).toUpperCase() + type.slice(1)} ${id}: ${description}`;
+    const data = { type, filename, deviceName, deviceGuid, id, elementType: element.firstElementChild.tagName };
+    itemList.appendChild(createSelectableListItem(text, data, 'source'));
+    }
+    });
+    if (itemList.hasChildNodes()) {
+    deviceNode.appendChild(itemList);
+    deviceList.appendChild(deviceNode);
+    }
+    });
+    if (deviceList.hasChildNodes()) {
+    profileNode.appendChild(deviceList);
+    sourceTree.appendChild(profileNode);
+    }
     }
 }
 
@@ -241,25 +370,25 @@ function buildTargetSelectionView(sourceData) {
     targetInstruction.style.display = 'none';
     const devices = Array.from(targetDOM.querySelectorAll('device')).sort((a, b) => (a.getAttribute('name') || '').localeCompare(b.getAttribute('name') || ''));
     devices.forEach(device => {
-        const deviceName = device.getAttribute('name');
-        const deviceGuid = device.getAttribute('device-guid');
-        if (!deviceGuid) return;
+    const deviceName = device.getAttribute('name');
+    const deviceGuid = device.getAttribute('device-guid');
+    if (!deviceGuid) return;
 
-        const deviceNode = document.createElement('li');
-        deviceNode.innerHTML = `<span class="emoji-icon">🎮</span><strong>${deviceName}</strong>`;
-        const itemList = document.createElement('ul');
-        const targetType = sourceData.type;
-        device.querySelectorAll(`mode > ${targetType}`).forEach(element => {
-            const id = element.getAttribute('id');
-            const description = generateItemDescription(element, false);
-            const text = `${targetType.charAt(0).toUpperCase() + targetType.slice(1)} ${id}: ${description}`;
-            const data = { type: targetType, deviceName, deviceGuid, id };
-            itemList.appendChild(createSelectableListItem(text, data, 'target'));
-        });
-        if (itemList.hasChildNodes()) {
-            deviceNode.appendChild(itemList);
-            targetTree.appendChild(deviceNode);
-        }
+    const deviceNode = document.createElement('li');
+    deviceNode.innerHTML = `<span class="emoji-icon">🎮</span><strong>${deviceName}</strong>`;
+    const itemList = document.createElement('ul');
+    const targetType = sourceData.type;
+    device.querySelectorAll(`mode > ${targetType}`).forEach(element => {
+    const id = element.getAttribute('id');
+    const description = generateItemDescription(element, false);
+    const text = `${targetType.charAt(0).toUpperCase() + targetType.slice(1)} ${id}: ${description}`;
+    const data = { type: targetType, deviceName, deviceGuid, id };
+    itemList.appendChild(createSelectableListItem(text, data, 'target'));
+    });
+    if (itemList.hasChildNodes()) {
+    deviceNode.appendChild(itemList);
+    targetTree.appendChild(deviceNode);
+    }
     });
 }
 
@@ -270,18 +399,18 @@ document.addEventListener('click', (e) => {
     const treeType = selectable.dataset.tree;
     const data = JSON.parse(selectable.dataset.info);
     if (treeType === 'source') {
-        document.querySelectorAll('#sourceTree .selected').forEach(el => el.classList.remove('selected'));
-        selectable.classList.add('selected');
-        resetTargetSelection();
-        selectedSourceData = data;
-        selectedSourceInfo.innerHTML = `<strong>${data.elementType}</strong> from <em>${data.filename}</em> &rarr; ${data.deviceName} &rarr; ${data.type} ${data.id}`;
-        buildTargetSelectionView(data);
+    document.querySelectorAll('#sourceTree .selected').forEach(el => el.classList.remove('selected'));
+    selectable.classList.add('selected');
+    resetTargetSelection();
+    selectedSourceData = data;
+    selectedSourceInfo.innerHTML = `<strong>${data.elementType}</strong> from <em>${data.filename}</em> &rarr; ${data.deviceName} &rarr; ${data.type} ${data.id}`;
+    buildTargetSelectionView(data);
     } else if (treeType === 'target') {
-        document.querySelectorAll('#targetTree .selected').forEach(el => el.classList.remove('selected'));
-        selectable.classList.add('selected');
-        selectedTargetData = data;
-        selectedTargetInfo.innerHTML = `<em>${targetFileName}</em> &rarr; ${data.deviceName} &rarr; ${data.type} ${data.id}`;
-        confirmCopyBtn.disabled = false;
+    document.querySelectorAll('#targetTree .selected').forEach(el => el.classList.remove('selected'));
+    selectable.classList.add('selected');
+    selectedTargetData = data;
+    selectedTargetInfo.innerHTML = `<em>${targetFileName}</em> &rarr; ${data.deviceName} &rarr; ${data.type} ${data.id}`;
+    confirmCopyBtn.disabled = false;
     }
 });
 
@@ -300,6 +429,7 @@ function resetTargetSelection() {
     confirmCopyBtn.disabled = true;
 }
 
+// --- PREVIEW FUNCTIONALITY ---
 confirmCopyBtn.addEventListener('click', () => {
     if (!selectedSourceData || !selectedTargetData) return;
     
@@ -321,28 +451,83 @@ confirmCopyBtn.addEventListener('click', () => {
         return;
     }
 
+    // Store elements for the preview
+    pendingSourceElement = sourceChildElement;
+    pendingTargetElement = targetParentElement;
+
+    // Set up preview content
+    previewSourcePath.innerHTML = `<strong>${selectedSourceData.filename}</strong> &rarr; ${selectedSourceData.deviceName} &rarr; ${selectedSourceData.type} ${selectedSourceData.id}`;
+    previewTargetPath.innerHTML = `<strong>${targetFileName}</strong> &rarr; ${selectedTargetData.deviceName} &rarr; ${selectedTargetData.type} ${selectedTargetData.id}`;
+    
+    // Format XML for display
+    previewSourceXml.innerHTML = formatXml(sourceChildElement);
+    previewTargetXml.innerHTML = targetParentElement.firstElementChild ? 
+        formatXml(targetParentElement.firstElementChild) : 
+        "<em>Empty (No content)</em>";
+    
+    // Show the modal
+    previewModal.style.display = 'block';
+});
+
+// Preview modal event handlers
+previewConfirmBtn.addEventListener('click', () => {
+    if (!pendingSourceElement || !pendingTargetElement) return;
+    
+    // Copy the description attribute if it exists
+    const sourceParentElement = pendingSourceElement.parentElement;
     const sourceDescription = sourceParentElement.getAttribute('description');
-    targetParentElement.setAttribute('description', sourceDescription || '');
+    pendingTargetElement.setAttribute('description', sourceDescription || '');
 
-    const elementToInsert = sourceChildElement.cloneNode(true);
-    while (targetParentElement.firstChild) {
-        targetParentElement.removeChild(targetParentElement.firstChild);
+    // Clone and insert the element
+    const elementToInsert = pendingSourceElement.cloneNode(true);
+    while (pendingTargetElement.firstChild) {
+        pendingTargetElement.removeChild(pendingTargetElement.firstChild);
     }
-    targetParentElement.appendChild(elementToInsert);
+    pendingTargetElement.appendChild(elementToInsert);
 
+    // Add log entry
     addLogEntry(`Copied <strong>${elementToInsert.tagName}</strong> from <em>${selectedSourceData.deviceName} / ${selectedSourceData.type} ${selectedSourceData.id}</em> to <em>${selectedTargetData.deviceName} / ${selectedTargetData.type} ${selectedTargetData.id}</em>.`);
     
+    // Update application state
     hasUnsavedChanges = true;
     saveBtn.disabled = false;
     outputFileName.disabled = false;
+    
+    // Reset selections and close modal
     resetSourceSelection();
     resetTargetSelection();
+    previewModal.style.display = 'none';
+    
+    // Clear pending elements
+    pendingSourceElement = null;
+    pendingTargetElement = null;
+});
+
+previewCancelBtn.addEventListener('click', () => {
+    previewModal.style.display = 'none';
+    pendingSourceElement = null;
+    pendingTargetElement = null;
+});
+
+closeModal.addEventListener('click', () => {
+    previewModal.style.display = 'none';
+    pendingSourceElement = null;
+    pendingTargetElement = null;
+});
+
+// Close modal if clicking outside of it
+window.addEventListener('click', (e) => {
+    if (e.target === previewModal) {
+        previewModal.style.display = 'none';
+        pendingSourceElement = null;
+        pendingTargetElement = null;
+    }
 });
 
 function addLogEntry(message) {
     if (logIsEmpty) {
-        operationsLog.innerHTML = '';
-        logIsEmpty = false;
+    operationsLog.innerHTML = '';
+    logIsEmpty = false;
     }
     const logItem = document.createElement('li');
     const time = new Date().toLocaleTimeString();
@@ -356,26 +541,26 @@ searchSource.addEventListener('input', (e) => {
     const fileNodes = sourceTree.querySelectorAll(':scope > li');
 
     fileNodes.forEach(fileNode => {
-        let fileVisible = false;
-        const deviceNodes = fileNode.querySelectorAll(':scope > ul > li');
-        
-        deviceNodes.forEach(deviceNode => {
-            let deviceVisible = false;
-            const itemNodes = deviceNode.querySelectorAll(':scope > ul > li');
+    let fileVisible = false;
+    const deviceNodes = fileNode.querySelectorAll(':scope > ul > li');
+    
+    deviceNodes.forEach(deviceNode => {
+    let deviceVisible = false;
+    const itemNodes = deviceNode.querySelectorAll(':scope > ul > li');
 
-            itemNodes.forEach(itemNode => {
-                const fullText = `${fileNode.firstChild.textContent} ${deviceNode.firstChild.textContent} ${itemNode.textContent}`.toLowerCase();
-                if (fullText.includes(searchTerm)) {
-                    itemNode.style.display = '';
-                    deviceVisible = true;
-                    fileVisible = true;
-                } else {
-                    itemNode.style.display = 'none';
-                }
-            });
-            deviceNode.style.display = deviceVisible ? '' : 'none';
-        });
-        fileNode.style.display = fileVisible ? '' : 'none';
+    itemNodes.forEach(itemNode => {
+    const fullText = `${fileNode.firstChild.textContent} ${deviceNode.firstChild.textContent} ${itemNode.textContent}`.toLowerCase();
+    if (fullText.includes(searchTerm)) {
+    itemNode.style.display = '';
+    deviceVisible = true;
+    fileVisible = true;
+    } else {
+    itemNode.style.display = 'none';
+    }
+    });
+    deviceNode.style.display = deviceVisible ? '' : 'none';
+    });
+    fileNode.style.display = fileVisible ? '' : 'none';
     });
 });
 
@@ -383,8 +568,8 @@ saveBtn.addEventListener('click', () => {
     if (!targetDOM || !hasUnsavedChanges) return;
     const finalFileName = outputFileName.value.trim();
     if (!finalFileName) {
-        alert('Output filename cannot be empty.');
-        return;
+    alert('Output filename cannot be empty.');
+    return;
     }
     const serializer = new XMLSerializer();
     const xmlString = '<?xml version="1.0" encoding="utf-8"?>\n' + serializer.serializeToString(targetDOM.documentElement);
