@@ -9,7 +9,7 @@
 
 - This AI app was not the typical 'write a snake game' to show that everyone can write apps with AI.
 
-- This project was developed using advanced context engineering techniques, not just traditional prompt engineering. I provided the AI with detailed specifications, real-world XML samples, and iterative feedback, orchestrating a collaborative workflow that leveraged both my software engineering expertise and the AI’s capabilities. This approach ensured the final application was robust, user-focused, and precisely tailored to real user needs—demonstrating my ability to manage complex projects and maximize the value of modern AI tools in professional software development.
+- This project was developed using advanced context engineering techniques, not just traditional prompt engineering. I provided the AI with detailed specifications, real-world XML samples, and iterative feedback, orchestrating a collaborative workflow that leveraged both my software engineering expertise and the AI’s capabilities. This approach ensured the final application was robust, user-focused, and precisely tailored to real user needs—demonstrating my ability to manage this type of projects and maximize the productivity of modern AI tools in professional software development.
 
 - Take a look at the word file that was one of the specs provided for context engineering.
 
