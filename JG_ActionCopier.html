@@ -234,28 +234,47 @@ let pendingSourceElement = null, pendingTargetElement = null;
 
 // --- UTILITY FUNCTIONS ---
 function generateItemDescription(parentElement, isSource) {
+    // MODIFICATION START: This function has been rewritten to solve an issue when the target has description but emtpy containers
     const childElement = parentElement.firstElementChild;
-    if (!childElement) return "Empty";
-    
-    let parts = [`<strong>${childElement.tagName}</strong>`];
-    const nameAttr = childElement.getAttribute('name');
     const parentDescAttr = parentElement.getAttribute('description');
 
-    if (parentDescAttr) parts.push(`<span class="description">(Desc: "${parentDescAttr}")</span>`);
-    if (nameAttr && isSource) parts.push(`<span class="description">(Name: "${nameAttr}")</span>`);
+    // Case 1: The element has no child action (e.g., <button id="2" description="..."/>)
+    if (!childElement) {
+        // If it has a description attribute, display that as the primary info.
+        if (parentDescAttr) {
+            return `<span class="description">(Desc: "${parentDescAttr}")</span>`;
+        }
+        // Otherwise, it's truly empty.
+        return "Empty";
+    }
+
+    // Case 2: The element has a child action, so proceed with the original logic but ensure
+    // the parent's description is always included if it exists.
+    let parts = [`<strong>${childElement.tagName}</strong>`];
+    const nameAttr = childElement.getAttribute('name');
+
+    if (parentDescAttr) {
+        parts.push(`<span class="description">(Desc: "${parentDescAttr}")</span>`);
+    }
+    if (nameAttr && isSource) {
+        parts.push(`<span class="description">(Name: "${nameAttr}")</span>`);
+    }
     
     if (childElement.tagName === 'container') {
-    const actionSet = childElement.querySelector('action-set');
-    if (actionSet) {
-    const childActions = actionSet.querySelectorAll(':scope > *');
-    if (childActions.length > 0) {
-    const actionTypes = Array.from(childActions).map(n => n.tagName).slice(0, 3).join(', ');
-    parts.push(`<span class="description">(${actionTypes}${childActions.length > 3 ? '...' : ''})</span>`);
-    }
-    }
+        const actionSet = childElement.querySelector('action-set');
+        if (actionSet) {
+            const childActions = actionSet.querySelectorAll(':scope > *');
+            if (childActions.length > 0) {
+                const actionTypes = Array.from(childActions).map(n => n.tagName).slice(0, 3).join(', ');
+                parts.push(`<span class="description">(${actionTypes}${childActions.length > 3 ? '...' : ''})</span>`);
+            }
+        }
     }
     return parts.join(' ');
+    // MODIFICATION END
 }
+
+
 
 // Format XML for display
 function formatXml(xml) {
