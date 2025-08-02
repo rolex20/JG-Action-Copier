@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Joystick Gremlin Action Copier v2.1</title>
+    <title>Joystick Gremlin Action Copier v2.3</title>
     <style>
     body { font-family: "Segoe UI", sans-serif; margin: 2em; background-color: #f0f0f0; }
     h1, h2, h3 { font-family: "Segoe UI Light", sans-serif; }
@@ -10,9 +10,8 @@
     #step1 { display: block; }
     .container { display: flex; gap: 2em; }
     .panel { flex: 1; border: 1px solid #ddd; padding: 1em; height: 60vh; overflow-y: auto; }
-    #sourceTree, #targetTree { list-style-type: none; padding-left: 0; }
-    #sourceTree ul, #targetTree ul { list-style-type: none; padding-left: 20px; }
-    #sourceTree li, #targetTree li { padding: 4px; }
+    ul { list-style-type: none; padding-left: 20px; }
+    li { padding: 4px; }
     .selectable { cursor: pointer; }
     .selectable:hover { background-color: #e0e0e0; }
     .selected { background-color: #0078d4; color: white; }
@@ -27,10 +26,8 @@
     .emoji-icon { font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji"; display: inline-block; width: 28px; text-align: center; }
     .description { color: #555; font-style: italic; }
     .selected .description { color: #eee; }
-    #operationsLog { list-style-type: none; padding-left: 0; max-height: 150px; overflow-y: auto; background-color: #fff; border: 1px solid #ddd; padding: 10px; }
+    #operationsLog { padding-left: 0; max-height: 150px; overflow-y: auto; background-color: #fff; border: 1px solid #ddd; padding: 10px; }
     .log-time { font-weight: bold; color: #005a9e; }
-    .log-action-add { color: green; }
-    .log-action-replace { color: orange; }
     #previewModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; }
     .modal-content { position: relative; background-color: #fff; margin: 5% auto; padding: 20px; width: 90%; max-width: 1800px; max-height: 80vh; overflow-y: auto; }
     .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; font-weight: bold; cursor: pointer; }
@@ -45,12 +42,14 @@
 </head>
 <body>
 
-    <h1><span class="emoji-icon">🛠️</span> Joystick Gremlin Action Copier v2.1</h1>
+    <h1><span class="emoji-icon">🛠️</span> Joystick Gremlin Action Copier</h1>
     <p>A self-contained tool to copy actions between profiles with granular add/replace control.</p>
 
     <div id="step1" class="wizard-step">
         <h2><span class="emoji-icon">📂</span> Step 1: Load Profiles</h2>
+        <label class="file-input-label"><strong>1. Select Source Profile(s) (.xml):</strong></label>
         <input type="file" id="sourceFiles" multiple accept=".xml">
+        <label class="file-input-label"><strong>2. Select Target Profile (.xml):</strong></label>
         <input type="file" id="targetFile" accept=".xml">
         <button id="loadFilesBtn"><span class="emoji-icon">⚡</span> Process Files</button>
     </div>
@@ -75,6 +74,7 @@
             <p><strong>Selected Target:</strong> <span id="selectedTargetInfo">None</span></p>
             <button id="confirmCopyBtn" disabled>Preview Operation</button>
             <hr>
+            <label for="outputFileName"><strong>Output Filename:</strong></label>
             <input type="text" id="outputFileName" disabled>
             <button id="saveBtn" disabled>Save Modified Profile</button>
             <button id="startOverBtn">Start Over</button>
@@ -108,7 +108,7 @@
     </div>
 
 <script>
-// --- JAVASCRIPT APPLICATION LOGIC (v2.1 - Perfected) ---
+// --- JAVASCRIPT APPLICATION LOGIC (v2.3 - Final) ---
 const get = (id) => document.getElementById(id);
 const step1 = get('step1'), step2 = get('step2');
 const loadFilesBtn = get('loadFilesBtn'), sourceFilesInput = get('sourceFiles'), targetFileInput = get('targetFile');
@@ -125,8 +125,7 @@ const previewTargetHeader = get('previewTargetHeader');
 
 let sourceDOMs = {}, targetDOM = null, targetFileName = '';
 let selectedSourceData = null, selectedTargetData = null;
-let hasUnsavedChanges = false;
-let logIsEmpty = true;
+let hasUnsavedChanges = false, logIsEmpty = true;
 let pendingSourceContainer = null, pendingTargetParent = null;
 
 function generateContainerDescription(container) {
@@ -137,20 +136,7 @@ function generateContainerDescription(container) {
     return `Container: ${actions.map(a => a.tagName).join(', ')}`;
 }
 
-function createListItem(options) {
-    const li = document.createElement('li');
-    li.innerHTML = `<span class="emoji-icon">${options.icon}</span><span class="${options.className || ''}">${options.text}</span>`;
-    if (options.isSelectable) {
-        li.classList.add('selectable');
-        li.dataset.tree = options.treeType;
-        li.dataset.info = JSON.stringify(options.data);
-    }
-    if (options.extraClass) li.classList.add(options.extraClass);
-    return li;
-}
-
 loadFilesBtn.addEventListener('click', () => {
-    // File loading logic is robust and remains unchanged.
     const sourceFiles = sourceFilesInput.files;
     const targetFile = targetFileInput.files[0];
     if (sourceFiles.length === 0 || !targetFile) { alert('Please select both source and target files.'); return; }
@@ -182,93 +168,130 @@ loadFilesBtn.addEventListener('click', () => {
             if (xmlDoc.querySelector("parsererror")) throw new Error(`Parser error in ${targetFile.name}`);
             targetDOM = xmlDoc;
             targetFileName = targetFile.name;
-            outputFileName.value = targetFileName;
+            outputFileName.value = `${targetFile.name.replace(/\.xml$/, '')}_modified.xml`;
             onFileProcessed();
         } catch (error) { alert(`Error: ${error.message}`); }
     };
     targetReader.readAsText(targetFile);
 });
 
-function buildSourceTreeView() {
-    sourceTree.innerHTML = '';
-    Object.keys(sourceDOMs).sort().forEach(filename => {
-        const profileNode = createListItem({ icon: '📄', text: filename, className: 'parent-item' });
-        const deviceList = document.createElement('ul');
-        sourceDOMs[filename].querySelectorAll('device').forEach(device => {
-            const deviceName = device.getAttribute('name');
-            const deviceGuid = device.getAttribute('device-guid');
-            if (!deviceName || !deviceGuid) return;
+/**
+ * Creates a list item for the tree view.
+ * @param {object} options - Configuration for the list item.
+ * @returns {HTMLLIElement} The created list item element.
+ */
+function createListItem(options) {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="emoji-icon">${options.icon}</span><span class="${options.className || ''}">${options.text}</span>`;
+    if (options.isSelectable) {
+        li.classList.add('selectable');
+        li.dataset.tree = options.treeType;
+        li.dataset.info = JSON.stringify(options.data);
+    }
+    if (options.extraClass) li.classList.add(options.extraClass);
+    return li;
+}
 
-            const deviceNode = createListItem({ icon: '🎮', text: deviceName, className: 'parent-item' });
-            const itemList = document.createElement('ul');
-            device.querySelectorAll('mode > axis, mode > button').forEach(element => {
-                const containers = element.querySelectorAll(':scope > container');
-                if (containers.length === 0) return;
-                
-                const type = element.tagName;
-                const id = element.getAttribute('id');
-                const parentText = `${type.charAt(0).toUpperCase() + type.slice(1)} ${id} <span class="description">(${containers.length})</span>`;
-                const parentNode = createListItem({ icon: '🎛️', text: parentText, className: 'parent-item' });
-                const containerList = document.createElement('ul');
-                containers.forEach((container, index) => {
-                    containerList.appendChild(createListItem({
-                        icon: '↳',
-                        text: generateContainerDescription(container),
-                        isSelectable: true, treeType: 'source',
-                        data: { filename, deviceGuid, type, id, containerIndex: index }
-                    }));
-                });
-                parentNode.appendChild(containerList);
-                itemList.appendChild(parentNode);
-            });
-            if (itemList.hasChildNodes()) deviceNode.appendChild(itemList);
-            if (deviceNode.querySelector('li')) deviceList.appendChild(deviceNode);
+/**
+ * Recursively builds a branch of the tree.
+ * @param {object} branchConfig - Configuration for the current branch.
+ * @returns {HTMLLIElement|null} The list item for the branch, or null if it's empty and should be pruned.
+ */
+function buildBranch(branchConfig) {
+    const node = createListItem(branchConfig.nodeOptions);
+    const childrenData = branchConfig.getChildren();
+    
+    if (childrenData.length > 0) {
+        const childList = document.createElement('ul');
+        childrenData.forEach(childConfig => {
+            const childNode = buildBranch(childConfig);
+            if (childNode) { // Pruning: only append valid child branches
+                childList.appendChild(childNode);
+            }
         });
-        if (deviceList.hasChildNodes()) profileNode.appendChild(deviceList);
-        if (profileNode.querySelector('li')) sourceTree.appendChild(profileNode);
+        if (childList.hasChildNodes()) {
+            node.appendChild(childList);
+        }
+    }
+
+    // A branch is valid if it's a selectable leaf, or a parent that contains a list of children.
+    if (branchConfig.nodeOptions.isSelectable || node.querySelector('ul')) {
+        return node;
+    }
+    return null;
+}
+
+/**
+ * Builds the entire tree view for either the source or target panel.
+ * This function defines the hierarchical structure and rules for building the tree.
+ * @param {HTMLUListElement} rootUlElement - The <ul> element to populate (sourceTree or targetTree).
+ * @param {object} docSet - The set of XML documents to parse (sourceDOMs or targetDOM).
+ * @param {boolean} isSource - Flag indicating if this is the source tree.
+ */
+function buildTreeView(rootUlElement, docSet, isSource) {
+    rootUlElement.innerHTML = '';
+    const docs = isSource ? docSet : { [targetFileName]: docSet };
+    
+    Object.keys(docs).sort().forEach(filename => {
+        const profileBranch = buildBranch({
+            nodeOptions: { icon: '📄', text: filename, className: 'parent-item' },
+            getChildren: () => Array.from(docs[filename].querySelectorAll('device')).map(device => ({
+                nodeOptions: { icon: '🎮', text: device.getAttribute('name') || 'Unnamed Device', className: 'parent-item' },
+                getChildren: () => Array.from(device.querySelectorAll('mode > axis, mode > button')).map(element => ({
+                    nodeOptions: {
+                        icon: '🎛️',
+                        text: (() => {
+                            const type = element.tagName.charAt(0).toUpperCase() + element.tagName.slice(1);
+                            const desc = element.getAttribute('description');
+                            const numContainers = element.querySelectorAll(':scope > container').length;
+                            return `${type} ${element.getAttribute('id')}${desc ? `: ${desc}` : ''} <span class="description">(${numContainers})</span>`;
+                        })(),
+                        className: 'parent-item'
+                    },
+                    getChildren: () => {
+                        const containers = Array.from(element.querySelectorAll(':scope > container'));
+                        if (isSource && containers.length === 0) return [];
+
+                        const baseData = {
+                            filename,
+                            deviceGuid: element.closest('device').getAttribute('device-guid'),
+                            type: element.tagName,
+                            id: element.getAttribute('id')
+                        };
+
+                        const children = [];
+                        if (!isSource) {
+                            children.push({
+                                nodeOptions: { icon: '➕', text: '[Add as New Container]', isSelectable: true, treeType: 'target', data: { ...baseData, containerIndex: -1 }, extraClass: 'add-new-item' }
+                            });
+                        }
+                        containers.forEach((container, index) => {
+                            children.push({
+                                nodeOptions: { icon: '↳', text: generateContainerDescription(container), isSelectable: true, treeType: isSource ? 'source' : 'target', data: { ...baseData, containerIndex: index } }
+                            });
+                        });
+                        return children.map(child => ({ ...child, getChildren: () => [] })); // Add base case for recursion
+                    }
+                }))
+            }))
+        });
+        if (profileBranch) rootUlElement.appendChild(profileBranch);
     });
 }
 
-function buildTargetSelectionView(sourceData) {
+function buildSourceTreeView() { buildTreeView(sourceTree, sourceDOMs, true); }
+function buildTargetSelectionView() {
     targetTree.innerHTML = '';
     targetInstruction.style.display = 'none';
-    const targetType = sourceData.type;
-    targetDOM.querySelectorAll('device').forEach(device => {
-        const deviceName = device.getAttribute('name');
-        const deviceGuid = device.getAttribute('device-guid');
-        const deviceNode = createListItem({ icon: '🎮', text: deviceName, className: 'parent-item' });
-        const itemList = document.createElement('ul');
-        device.querySelectorAll(`mode > ${targetType}`).forEach(element => {
-            const id = element.getAttribute('id');
-            const parentNode = createListItem({ icon: '🎛️', text: `${targetType.charAt(0).toUpperCase() + targetType.slice(1)} ${id}`, className: 'parent-item' });
-            const containerList = document.createElement('ul');
-            const baseData = { deviceGuid, type: targetType, id };
-            containerList.appendChild(createListItem({
-                icon: '➕', text: '[Add as New Container]',
-                isSelectable: true, treeType: 'target',
-                data: { ...baseData, containerIndex: -1 },
-                extraClass: 'add-new-item'
-            }));
-            element.querySelectorAll(':scope > container').forEach((container, index) => {
-                containerList.appendChild(createListItem({
-                    icon: '↳', text: generateContainerDescription(container),
-                    isSelectable: true, treeType: 'target',
-                    data: { ...baseData, containerIndex: index }
-                }));
-            });
-            parentNode.appendChild(containerList);
-            itemList.appendChild(parentNode);
-        });
-        if (itemList.hasChildNodes()) deviceNode.appendChild(itemList);
-        if (deviceNode.querySelector('li')) targetTree.appendChild(deviceNode);
-    });
+    buildTreeView(targetTree, targetDOM, false);
 }
 
 document.addEventListener('click', (e) => {
     const selectable = e.target.closest('.selectable');
     if (!selectable) return;
     const treeType = selectable.dataset.tree;
-    document.querySelectorAll(`.${treeType}Tree .selected`).forEach(el => el.classList.remove('selected'));
+    // UX BUG FIX: Correctly clear previous selection from the correct tree.
+    document.querySelectorAll(`#${treeType}Tree .selected`).forEach(el => el.classList.remove('selected'));
     selectable.classList.add('selected');
 
     if (treeType === 'source') {
@@ -277,7 +300,7 @@ document.addEventListener('click', (e) => {
         selectedSourceInfo.textContent = `Container ${selectedSourceData.containerIndex + 1} from ${selectedSourceData.type} ${selectedSourceData.id}`;
         selectedTargetInfo.textContent = 'None';
         confirmCopyBtn.disabled = true;
-        buildTargetSelectionView(selectedSourceData);
+        buildTargetSelectionView();
     } else {
         selectedTargetData = JSON.parse(selectable.dataset.info);
         selectedTargetInfo.textContent = selectedTargetData.containerIndex === -1
@@ -288,7 +311,6 @@ document.addEventListener('click', (e) => {
 });
 
 confirmCopyBtn.addEventListener('click', () => {
-    // REFINEMENT: Use .textContent for safer and simpler XML display
     const serializer = new XMLSerializer();
     const sourceParent = sourceDOMs[selectedSourceData.filename].querySelector(`device[device-guid="${selectedSourceData.deviceGuid}"] > mode > ${selectedSourceData.type}[id="${selectedSourceData.id}"]`);
     pendingSourceContainer = sourceParent.querySelectorAll(':scope > container')[selectedSourceData.containerIndex];
@@ -299,10 +321,8 @@ confirmCopyBtn.addEventListener('click', () => {
     if (selectedTargetData.containerIndex === -1) { // ADD
         previewSummary.className = 'preview-summary summary-add';
         previewSummary.textContent = `You are about to ADD this container.`;
-        previewTargetHeader.textContent = `Target Axis/Button (All existing containers)`;
-        let allTargetXml = Array.from(pendingTargetParent.querySelectorAll(':scope > container'))
-                                .map(c => serializer.serializeToString(c))
-                                .join('\n\n');
+        previewTargetHeader.textContent = `Target (All existing containers)`;
+        let allTargetXml = Array.from(pendingTargetParent.querySelectorAll(':scope > container')).map(c => serializer.serializeToString(c)).join('\n\n');
         previewTargetXml.textContent = allTargetXml || 'Target is currently empty.';
     } else { // REPLACE
         const containerToReplace = pendingTargetParent.querySelectorAll(':scope > container')[selectedTargetData.containerIndex];
@@ -330,21 +350,15 @@ previewConfirmBtn.addEventListener('click', () => {
     saveBtn.disabled = false;
     outputFileName.disabled = false;
     
-    // UX BUG FIX: Instead of a full reset, just refresh the target tree view
-    const currentTargetSelection = selectedTargetData;
-    buildTargetSelectionView(selectedSourceData);
-    // Re-select the same target parent for a smooth workflow
-    document.querySelectorAll('#targetTree .selectable').forEach(li => {
-        const info = JSON.parse(li.dataset.info);
-        if (info.deviceGuid === currentTargetSelection.deviceGuid && info.id === currentTargetSelection.id && info.containerIndex === currentTargetSelection.containerIndex) {
-            li.classList.add('selected');
-        }
-    });
+    // UX REFINEMENT: Refresh target tree for a smooth workflow, but clear target selection.
+    buildTargetSelectionView();
+    selectedTargetData = null;
+    selectedTargetInfo.textContent = 'None';
+    confirmCopyBtn.disabled = true;
     
     previewModal.style.display = 'none';
 });
 
-// FUNCTIONAL BUG FIX: Corrected search algorithm
 searchSource.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const allItems = Array.from(sourceTree.querySelectorAll('li'));
@@ -353,14 +367,14 @@ searchSource.addEventListener('input', (e) => {
         return;
     }
 
-    allItems.forEach(li => {
-        li.style.display = 'none'; // Hide all by default
-        li.dataset.keepVisible = 'false';
-    });
+    // Hide all items first
+    allItems.forEach(li => { li.style.display = 'none'; li.dataset.keepVisible = 'false'; });
 
+    // Find leaf nodes that match and mark them for visibility
     const leafItems = allItems.filter(li => li.classList.contains('selectable'));
     leafItems.forEach(li => {
         if (li.textContent.toLowerCase().includes(searchTerm)) {
+            // Traverse up the tree from the match, marking all parents for visibility
             let current = li;
             while (current && current !== sourceTree) {
                 current.dataset.keepVisible = 'true';
@@ -369,11 +383,8 @@ searchSource.addEventListener('input', (e) => {
         }
     });
 
-    allItems.forEach(li => {
-        if (li.dataset.keepVisible === 'true') {
-            li.style.display = '';
-        }
-    });
+    // Un-hide all items marked for visibility
+    allItems.forEach(li => { if (li.dataset.keepVisible === 'true') { li.style.display = ''; }});
 });
 
 function addLogEntry(message) {
@@ -403,5 +414,3 @@ closeModal.addEventListener('click', () => previewModal.style.display = 'none');
 
 </body>
 </html>
-
-
