@@ -77,7 +77,7 @@ If you’re a flight simulation enthusiast, you know the pain of managing dozens
 
 ## Credits
 
--   **Human Architect & Context Engineer:** You (The user who guided the project).
+-   **Human Architect & Context Engineer:** rolex (The user who guided the project).
 -   **AI Development Team:**
     -   **Gemini & Claude:** Performed initial application scaffolding and feature implementation.
     -   **ChatGPT:** Wrote the initial draft of the README.
