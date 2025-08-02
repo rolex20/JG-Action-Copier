@@ -52,7 +52,7 @@ If you’re a flight simulation enthusiast, you know the pain of managing dozens
 ## Usage
 
 1.  **Open the App:**  
-    Download and open JG_ActionCopier.html(https://rolex20.github.io/JG-Action-Copier/JG_ActionCopier.html) in your web browser.
+    Download and open [JG_ActionCopier.html](https://rolex20.github.io/JG-Action-Copier/JG_ActionCopier.html) in your web browser.
 
 2.  **Load Profiles:**  
     - Select one or more **source** XML profiles.
