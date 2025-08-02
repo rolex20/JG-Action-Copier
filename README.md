@@ -1,84 +1,87 @@
 # [Joystick Gremlin Action Copier](https://rolex20.github.io/JG-Action-Copier/JG_ActionCopier.html)
 
-- A browser-based tool to copy and paste actions, curves, and macros between Joystick Gremlin XML profiles.
-- This is an app fully created by an AI with context engineering instead of prompt engineering.  Read below why this matters.
+A professional, browser-based tool to copy and paste actions, curves, and macros between Joystick Gremlin XML profiles with surgical precision.
+
+This application was created through a unique collaboration between a human software architect and multiple advanced AI models, showcasing the power of expert-led context engineering over simple prompting.
 
 ---
 
-## About Human Involvement & Context Engineering
+## About The Project & The AI Collaboration
 
-- This AI app was not the typical 'write a snake game' to show that everyone can write apps with AI.
+This project was developed using advanced context engineering techniques. The human architect provided the AI with detailed specifications, real-world XML samples, schematics, and iterative feedback, orchestrating a collaborative workflow. The development journey involved multiple stages and AIs:
 
-- This project was developed using advanced context engineering techniques, not just traditional prompt engineering. I provided the AI with detailed specifications, real-world XML samples, and iterative feedback, orchestrating a collaborative workflow that leveraged both my software engineering expertise and the AI’s capabilities. This approach ensured the final application was robust, user-focused, and precisely tailored to real user needs—demonstrating my ability to manage this type of projects and maximize the productivity of modern AI tools in professional software development.
+1.  **Initial Creation (Gemini & Claude):** The first version was created to handle basic copying.
+2.  **Initial Bug Fixes (The User & Abacus):** The user identified a critical data-loss bug, which was fixed by adding safe, "add-only" logic.
+3.  **The Architectural Flaw:** The user then correctly diagnosed that "add-only" was insufficient, as it could create functional conflicts (e.g., two remaps on one axis).
+4.  **Final Architecture (The User & Abacus):** The application was completely re-architected to provide the necessary granular control, turning it from a simple utility into a robust, professional-grade tool.
 
-- Take a look at the word file that was one of the specs provided for context engineering.
-
-- Prompt engineering is about the “what” and “how” of a single message.
-  
-- Context engineering is about the “who, what, when, where, and why” of the entire session or application, including all relevant background, files, and ongoing state.
+This project demonstrates how human expertise can guide AI to solve complex, real-world problems far beyond simple "snake game" examples.
 
 ---
 
 ## Why This Application Exists
 
-If you’re a flight simulation enthusiast with a growing collection of joysticks, throttles, and rudder pedals, you know the pain of managing dozens of Joystick Gremlin (JG) profiles. Each profile is carefully crafted for different hardware and aircraft, but Joystick Gremlin’s GUI does not allow you to copy or replicate macros, curves, or actions between profiles or devices. Recreating these by hand is tedious and error-prone, and editing XML directly is risky.
+If you’re a flight simulation enthusiast, you know the pain of managing dozens of Joystick Gremlin (JG) profiles. Recreating macros, curves, or actions by hand is tedious and error-prone, and editing XML directly is risky.
 
-**Joystick Gremlin Action Copier** solves this problem by letting you load all your JG XML profiles at once, building an internal database of every action, macro, and curve you’ve ever created. You can visually browse, search, and filter these actions—by name, description, or label—across all your files. When you want to copy a macro, curve, or action, you simply select it from the source tree, pick a compatible destination in your target profile, and preview the exact XML changes before confirming. The app ensures you only copy valid actions to valid destinations, and it validates the XML before saving.
+**Joystick Gremlin Action Copier** solves this by letting you load all your JG XML profiles at once, building a searchable library of every action you've ever created. You can visually browse, find, and copy actions with precision, choosing to either add them as new or replace existing ones to avoid conflicts.
 
 **Key Benefits:**
 - **Massive time saver:** No more recreating complex actions by hand.
 - **Error reduction:** No more risky manual XML edits.
+- **Granular Control:** Choose to **add** a new action or precisely **replace** an existing one.
+- **Conflict Prevention:** Avoid creating broken profiles by replacing, not just adding, conflicting actions like remaps.
 - **Bulk management:** Handles dozens of profiles and thousands of actions at once.
-- **Searchable:** Instantly find what you need, even if you don’t remember the ID.
-- **Safe:** Always preview and validate before saving.
-- **User-friendly:** All in a single, portable HTML file—no installation, no dependencies.
+- **Safe & User-friendly:** A single, portable HTML file—no installation, no dependencies.
 
 ---
 
 ## Features
 
-- **Load Multiple Source Profiles:** Import any number of source XML profiles at once.
-- **Target Profile Editing:** Select a single target profile to modify.
-- **Visual Tree Navigation:** Browse devices, axes, and buttons in a clear, expandable tree view.
-- **Live Search:** Instantly filter source actions by device, name, or description.
-- **Preview Before Copy:** See exactly what will be copied and where, with a side-by-side XML preview modal.
-- **Safe Copying:** Confirm or cancel each copy operation before making changes.
-- **Operation Log:** Track all copy actions performed in the current session.
-- **Save Modified Profile:** Download the updated target profile as a new XML file.
-- **No Installation Required:** 100% client-side, works in any modern browser. No dependencies, no server, no data leaves your computer.
-- **Emojis for Clarity:** Uses emoji icons for a modern, intuitive interface.
+- **Load Multiple Source Profiles:** Import any number of source XML profiles.
+- **Granular Container Selection:** Browse and select individual action containers within each axis or button.
+- **Add or Replace Functionality:** Explicitly choose to add a container to a target or replace an existing one.
+- **Intelligent Preview:** The preview modal clearly shows whether you are about to ADD or REPLACE and displays the relevant XML for confirmation.
+- **Robust Tree-Preserving Search:** Instantly filter the source library; the search will always show the full path to any matching item.
+-   **Seamless Workflow:** After an operation, the UI intelligently refreshes, allowing for multiple, consecutive copy/replace actions without starting over.
+- **Detailed Operation Log:** Track all `[ADD]` and `[REPLACE]` actions performed in the current session.
+- **Safe Save:** Download the updated target profile as a new, validated XML file.
+- **100% Client-Side:** No installation, no dependencies, no server. Your data never leaves your computer.
 
 ---
 
 ## Usage
 
-1. **Open the App:**  
-   Click on this link or Download and open [JG_ActionCopier.html](https://rolex20.github.io/JG-Action-Copier/JG_ActionCopier.html) in your web browser.
+1.  **Open the App:**  
+    Download and open JG_ActionCopier.html(https://rolex20.github.io/JG-Action-Copier/JG_ActionCopier.html) in your web browser.
 
-2. **Load Profiles:**  
-   - Select one or more source XML profiles.
-   - Select a single target XML profile.
+2.  **Load Profiles:**  
+    - Select one or more **source** XML profiles.
+    - Select a single **target** XML profile.
 
-3. **Browse and Search:**  
-   - Explore the source library and target destinations.
-   - Use the search box to quickly find actions.
+3.  **Browse and Select:**  
+    - In the "Source Library" panel, expand the trees to find and select the specific **container** you wish to copy.
+    - In the "Target Destinations" panel, the corresponding inputs will appear. Expand the desired target.
 
-4. **Copy Actions:**  
-   - Select a source action and a target destination.
-   - Click "Preview Copy" to review the operation.
-   - Confirm or cancel in the preview modal.
+4.  **Choose Operation (Add or Replace):**
+    - To **add** the source container, select the `[+] Add as New Container` option in the target.
+    - To **replace** an existing container, select that specific container in the target list.
 
-5. **Save Changes:**  
-   - When ready, enter an output filename and click "Save Modified Profile" to download your updated XML.
+5.  **Preview and Confirm:**  
+    - Click "Preview Operation". A modal will appear, clearly stating the action (ADD/REPLACE) and showing the XML.
+    - Click "Confirm" to perform the operation.
+
+6.  **Save Changes:**  
+    - After performing one or more operations, enter an output filename and click "Save Modified Profile".
 
 ---
 
-## Advanced Functionality
+## Credits
 
-- **XML Validation:** The app validates your XML before and after each operation, ensuring your profiles remain error-free.
-- **Tooltip Previews:** Hover over any item in the tree to see a tooltip with the relevant XML snippet.
-- **Operation Log:** Review a detailed log of all copy/replace actions performed in your session.
-- **Search & Filter:** Find actions by any attribute (`name`, `description`, `label`), case-insensitive and matching anywhere in the text.
+-   **Human Architect & Context Engineer:** You (The user who guided the project).
+-   **AI Development Team:**
+    -   **Gemini & Claude:** Performed initial application scaffolding and feature implementation.
+    -   **ChatGPT:** Wrote the initial draft of the README.
+    -   **Gemini 2.5 Pro with Google AI Studio:** Performed the final, major architectural overhaul (v2.0), implemented the granular add/replace logic, and conducted the final code review and perfectioning (v2.1).
 
 ---
 
@@ -86,16 +89,9 @@ If you’re a flight simulation enthusiast with a growing collection of joystick
 
 - Any modern web browser (Chrome, Edge, Firefox, Safari)
 - Joystick Gremlin XML profiles
-- Windows 11 (latest version/patches) and Microsoft Edge (latest version/patches) recommended for best compatibility
 
 ---
 
 ## License
 
 MIT License
-
----
-
-- **Created by Gemini 2.5 Pro.** did most of the work.
-- Claude Sonnet 3.7 - Only did the preview and filter by non-empty-actions
-- Chat GPT 4.1 - Wrote most of the README.md 
