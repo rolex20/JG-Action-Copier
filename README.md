@@ -1,6 +1,6 @@
 # [Joystick Gremlin Action Copier](https://rolex20.github.io/JG-Action-Copier/JG_ActionCopier.html)
 
-A professional, browser-based tool to copy and paste actions, curves, and macros between Joystick Gremlin XML profiles with surgical precision.
+A browser-based tool to copy and paste actions, curves, and macros between Joystick Gremlin XML profiles with surgical precision.
 
 This application was created through a unique collaboration between a human software architect and multiple advanced AI models, showcasing the power of expert-led context engineering over simple prompting.
 
