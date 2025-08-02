@@ -8,14 +8,22 @@ This application was created through a unique collaboration between a human soft
 
 ## About The Project & The AI Collaboration
 
-This project was developed using advanced context engineering techniques. The human architect provided the AI with detailed specifications, real-world XML samples, schematics, and iterative feedback, orchestrating a collaborative workflow. The development journey involved multiple stages and AIs:
+- This AI app was not the typical 'write a snake game' to show that everyone can write apps with AI.
+
+- This project was developed using advanced context engineering techniques, not just traditional prompt engineering. I provided the AI with detailed specifications, real-world XML samples, and iterative feedback, orchestrating a collaborative workflow that leveraged both my software engineering expertise and the AI’s capabilities. This approach ensured the final application was robust, user-focused, and precisely tailored to real user needs—demonstrating my ability to manage this type of projects and maximize the productivity of modern AI tools in professional software development.
+
+- Take a look at the word file that was one of the specs provided for context engineering.
+
+- Prompt engineering is about the “what” and “how” of a single message.
+  
+- Context engineering is about the “who, what, when, where, and why” of the entire session or application, including all relevant background, files, and ongoing state.
+
+- The development journey involved multiple stages and AIs:
 
 1.  **Initial Creation (Gemini & Claude):** The first version was created to handle basic copying.
-2.  **Initial Bug Fixes (The User & Abacus):** The user identified a critical data-loss bug, which was fixed by adding safe, "add-only" logic.
+2.  **Initial Bug Fixes (Human & Gemini):** The user identified a critical data-loss bug, which was fixed by adding safe, "add-only" logic.
 3.  **The Architectural Flaw:** The user then correctly diagnosed that "add-only" was insufficient, as it could create functional conflicts (e.g., two remaps on one axis).
-4.  **Final Architecture (The User & Abacus):** The application was completely re-architected to provide the necessary granular control, turning it from a simple utility into a robust, professional-grade tool.
-
-This project demonstrates how human expertise can guide AI to solve complex, real-world problems far beyond simple "snake game" examples.
+4.  **Final Architecture (Human & Gemini):** The application was completely re-architected to provide the necessary granular control, turning it from a simple utility into a robust, professional-grade tool.
 
 ---
 
